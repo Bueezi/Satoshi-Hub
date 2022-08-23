@@ -32,6 +32,8 @@ AutoClaimGroupBenefits = false;
 AutoDeposit = false;
 AutoSell = false;
 ShowedCollapseMeter = false;
+AutoRebirth = false;
+AutoSellMax = 0;
 -- String
 FactoryType = "Shells";
 Theme = "GrapeTheme";
@@ -100,7 +102,7 @@ local ThemeTable = {"DarkTheme","LightTheme","BloodTheme","GrapeTheme","Ocean","
 local GemChests = {"Crystal Cavern","Glitched Chasm"}
 local SelectedBoosts = {}
 -- UI
-local Library = loadstring(game:HttpGet("https://pastebin.com/raw/L8ALAyBk"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/UI-Library.lua"))()
 local Window = Library.CreateLib("Satoshi Hub", Variables.Theme)
 
 -- Tabs
@@ -152,8 +154,14 @@ Variables.MineAura = state
 Save()
 end)
 MineSection:NewToggle("Auto Sell", "Sells automaticly to the selected location", function(state)
---AutoSell = state
-Sell()
+Variables.AutoSell = state
+end)
+local AutoSellMaxTextBox = MineSection:NewTextBox("AutoSell Max", "Will Sell When BackpackStorage is The Defined Value , 0 to Disable", function(txt)
+Variables.AutoSellMax = tonumber(txt)
+Save()
+end)
+MineSection:NewToggle("Auto Rebirth", "AutoMaticly Rebirths", function(state)
+Variables.AutoRebirth = state
 end)
 -- Farm End
 
@@ -282,9 +290,10 @@ end)
 SettingsSection:NewDropdown("Theme", "Select the theme of the UI", ThemeTable, function(currentOption)
 	Variables.Theme = currentOption
 	Save()
+	ResetSettings()
 	wait(0.3)
 	DestroyUI()
-	loadstring(game:HttpGet('https://pastebin.com/raw/PZYitRUA'))()
+	loadstring(game:HttpGet'https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/Main.lua')()
 end)
 SettingsSection:NewButton("DestroyUI", "Destroys the Gui", function()
 	Save()
@@ -452,13 +461,111 @@ function GetLayer()
 	end;
 	Layer = v2 .. "Sell"
 end
+
+
+
 function Sell()
+	local Humanoid = game.Players.LocalPlayer.Character.HumanoidRootPart
+	local LastPositionX = Humanoid.Position.X
+	local LastPositionZ = Humanoid.Position.Z
+	local LastCFrame = Humanoid.CFrame
 	GetLayer()
+	print("Sell Location : " .. Layer)
 	game.ReplicatedStorage.Events.Teleport:FireServer(Layer)
-	wait(0.2)
-	game:GetService("ReplicatedStorage").Events.GotoTeleporter:FireServer()
+	wait(1)
+	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)
+	Teleport(LastPositionX,9999,LastPositionZ) -- Teleport Back To Point
+	Humanoid.CFrame = LastCFrame -- Teleport to depth and Orientation
 end
+function GetRebirthPrice()
+	local p1 = game.Players.LocalPlayer.leaderstats.Rebirths.Value
+	local p2 = require(game.ReplicatedStorage.LoadModule)("LocalData"):GetData("GemEnchantments")
+	local v1 = require(game:GetService("ReplicatedStorage").SharedModules.Helpers.GetRebirthCost)
+	local RebirthCost = v1(p1,p2)
+	return(RebirthCost)
+end
+function Teleport(x,y,z)
+	loadstring(game:HttpGet'https://pastebin.com/raw/uF2sempX')() -- Load Teleport Script
+	valtomove = 1.5
+	tp(x,y,z)
+end
+function GetBackpackValue()
+	local Inventory = require(game:GetService("ReplicatedStorage").SharedModules.Helpers.GetBackpackStatus)(p1)["Inventory"]
+	local Blocks = require(game:GetService("ReplicatedStorage").SharedModules.Data.Blocks)
+	local BackpackBrutValue = 0
+	local BackpackValue = 0
+	for i,OreTable in pairs(Inventory) do 
+		local Ore = OreTable[1]
+		local Amount = OreTable[2]
+		local Value = Blocks[Ore]["Value"][2]
+		local Value2 = Value * Amount
+		BackpackBrutValue = BackpackBrutValue + Value2
+		--print("Ore Name : " .. Ore .. " Amount : " .. tostring(Amount) .. " Value : " .. Value .. " Value2 : " .. Value2)
+	end
+
+	local moduleformat = require(game.ReplicatedStorage.LoadModule)
+	local LocalData = moduleformat("LocalData")
+	local CurrencyMulti = moduleformat("GetCurrencyMultiplier")
+	local multiCoins = CurrencyMulti(Player, "Coins", LocalData:GetData("Passes"), LocalData:GetData("GemEnchantments"))
+	BackpackValue = BackpackBrutValue * tonumber(multiCoins) + 0.5
+	return(BackpackValue)
+end
+
+spawn(function()
+    while true do
+		wait(0.5)
+		while Variables.AutoSell == true do
+			pcall(function()
+				game:GetService("ReplicatedStorage").ClientModules.Utility.Gui.CreatePrompt.Prompt.Name = "Prompta"
+			end)
+			local v1 = require(game:GetService("ReplicatedStorage").SharedModules.Helpers.GetBackpackStatus);
+			local t = v1(p2)
+			local BackpackStorage = t["Storage"]
+			local BackpackFull = t["Full"]
+			if BackpackStorage > Variables.AutoSellMax and Variables.AutoSellMax ~= 0 then 
+				print("Selling Cause BackpackStorage > AutoSellMax")
+				Sell()
+			elseif BackpackFull then 
+				print("Selling Cause BackpackFull")
+				Sell()
+			end
+			wait(0.2)
+		end -- If/While End
+		pcall(function()
+				game:GetService("ReplicatedStorage").ClientModules.Utility.Gui.CreatePrompt.Prompta.Name = "Prompt"
+		end)
+	end -- Infinite Loop End
+end) -- Spawn End
 -- AutoSell End
+
+-- AutoRebirth Begin 
+spawn(function()
+    while true do
+		wait(0.5)
+		while Variables.AutoRebirth == true do
+			--print("Rebirth Price : " .. GetRebirthPrice() .. " BackpackValue : " .. GetBackpackValue())
+			if (GetBackpackValue() + game.Players.LocalPlayer.leaderstats.Coins.Value) > GetRebirthPrice() then
+				print("Rebirthing")
+					local Humanoid = game.Players.LocalPlayer.Character.HumanoidRootPart
+					local LastPositionX = Humanoid.Position.X
+					local LastPositionZ = Humanoid.Position.Z
+					local LastCFrame = Humanoid.CFrame
+					GetLayer()
+					print("Sell Location : " .. Layer)
+					game.ReplicatedStorage.Events.Teleport:FireServer(Layer)
+					wait(1)
+					game:GetService("ReplicatedStorage").Events.Rebirth:FireServer()
+					wait(1)
+					Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)
+					Teleport(LastPositionX,9999,LastPositionZ) -- Teleport Back To Point
+					Humanoid.CFrame = LastCFrame -- Teleport to depth and Orientation
+				
+			end
+			wait(0.3)
+		end -- If/While End
+	end -- Infinite Loop End
+end) -- Spawn End
+-- AutoRebirth End
 
 --------------------- FarmTab End --------------------
 
