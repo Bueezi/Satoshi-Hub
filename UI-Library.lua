@@ -233,7 +233,7 @@ function Kavo.CreateLib(kavName, themeList)
     Main.ClipsDescendants = true
 	Main.AnchorPoint = Vector2.new(0.5,0.5)
     Main.Position = UDim2.new(0.75, 0, 0.7, 0)
-    Main.Size = UDim2.new(525, 0, 0, 318)
+    Main.Size = UDim2.new(0, 525, 0, 318)
 
     MainCorner.CornerRadius = UDim.new(0, 4)
     MainCorner.Name = "MainCorner"
