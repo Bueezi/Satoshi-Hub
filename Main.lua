@@ -44,22 +44,19 @@ FactoryAmmount = 4;
 }
 local DefaultSettings = Variables
 function ResetSettings()
-	for i,v in pairs(DefaultSettings) do print (i .. "	Value : " .. tostring(v)) end
 	Variables = DefaultSettings
 end
 function Save()
-	spawn(function()
-		print("Saving Settings")
-		local json
-		local HttpService = game:GetService("HttpService")
-		if (writefile) then
-			json = HttpService:JSONEncode(Variables)
-			writefile(File, json)
-			print("Succes")
-		else
-			print("--- Sorry Your Executor Dont Support Save ---")
-		end
-	end) -- Spawn End
+	print("--- Saving Settings ---")
+	local json
+	local HttpService = game:GetService("HttpService")
+	if (writefile) then
+		json = HttpService:JSONEncode(Variables)
+		writefile(File, json)
+		print("--- Succes ---")
+	else
+		print("--- Sorry Your Executor Dont Support Save ---")
+	end
 end -- Save End
 function Load()
 	print("----------- Loading Settings -----------")
@@ -72,7 +69,7 @@ function Load()
 	end
 end
 Load()
-for i,v in pairs(Variables) do print (i .. "	Value : " .. tostring(v)) end
+for i,v in pairs(Variables) do print (i .. " = " .. tostring(v)) end
 print("----------- SuccesFullyLoaded -----------")
 -- Tables
 local Worlds = {}
@@ -289,14 +286,13 @@ SettingsSection:NewKeybind("Hide UI Key", "Select The Key to hide the UI", Enum.
 end)
 SettingsSection:NewDropdown("Theme", "Select the theme of the UI", ThemeTable, function(currentOption)
 	Variables.Theme = currentOption
-	Save()
-	ResetSettings()
-	wait(0.3)
 	DestroyUI()
+	print("Destroyed")
+	wait(0.5)
 	loadstring(game:HttpGet'https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/Main.lua')()
+	script.Parent = nil
 end)
 SettingsSection:NewButton("DestroyUI", "Destroys the Gui", function()
-	Save()
     DestroyUI()
 end)
 SettingsSection:NewButton("Refresh", "Destroys the Gui", function()
