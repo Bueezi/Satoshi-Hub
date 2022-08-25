@@ -281,6 +281,7 @@ function Kavo.CreateLib(kavName, themeList)
     close.ImageRectSize = Vector2.new(24, 24)
     close.MouseButton1Click:Connect(function()
         game.TweenService:Create(close, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+			print("Close")
             _G.DestroyUIGlobalVariable = true
         }):Play()
         wait()
