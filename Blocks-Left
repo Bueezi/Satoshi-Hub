@@ -2,13 +2,13 @@ local l__Workspace__1 = game:GetService("Workspace");
 local v2 = require(game:GetService("ReplicatedStorage").LoadModule);
 local l__MinedBlocksResetLimit__1 = v2("Constants").MinedBlocksResetLimit;
 local u2 = v2("AddCommas");
-local BlockLeft
+local BlocksLeft
 for v3, v4 in pairs((v2("Worlds"))) do
     local u3 = l__Workspace__1.Worlds:FindFirstChild(v3).Sign.Display.SurfaceGui
     local function v5()
         local v6 = workspace:GetAttribute("MineBlocksCount")
         local v7 = l__MinedBlocksResetLimit__1 - v6
-        BlockLeft = string.format(v7)
+        BlocksLeft = string.format(v7)
     end;
     v5();
     u3 = ipairs;
@@ -23,7 +23,7 @@ for v3, v4 in pairs((v2("Worlds"))) do
                     local function v14()
                         local v15 = workspace:GetAttribute("MineBlocksCount")
                         local v16 = l__MinedBlocksResetLimit__1 - v15
-                        BlockLeft = string.format(v16)
+                        BlocksLeft = string.format(v16)
                     end;
                     v14()
                 end
