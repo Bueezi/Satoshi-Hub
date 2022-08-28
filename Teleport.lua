@@ -29,8 +29,6 @@ function Teleport(X,Y,Z,Debug)
 	if Y ~= nil then
 		Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,Y,Humanoid.CFrame.Z))
 		if Debug then print("Y Done") end
-	else
-		Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,LastY,Humanoid.CFrame.Z))
 	end
 	if Debug then print("Teleportation Ended") end
 end
