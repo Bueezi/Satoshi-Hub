@@ -1,8 +1,10 @@
-function Teleport(X,Y,Z,Debug)
+function Teleport(X,Y,Z,Debug,Sky)
 	local Humanoid = game.Players.LocalPlayer.Character.HumanoidRootPart
 	-- Sky
 	local LastY = Humanoid.CFrame.Y
+	if Sky == true then
 	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)
+	end
 	if Debug then print("Teleportation Begin") end
 	if X ~= nil then
 		while X > Humanoid.Position.X do
@@ -35,4 +37,4 @@ end
 
 Debug = true
 TeleportSpeed = 1.5
-Teleport(X,Y,Z,Debug)
+Teleport(X,Y,Z,Debug,Sky)
