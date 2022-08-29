@@ -1,5 +1,5 @@
 function Teleport(X,Y,Z,Debug,Sky)
-	local Timer
+	local Timer = 0
 	spawn(function()
 		wait(1)
 		Timer = Timer + 1
