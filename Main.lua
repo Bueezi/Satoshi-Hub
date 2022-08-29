@@ -1,8 +1,10 @@
-function Teleport(X,Y,Z,Debug,Sky)
+function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
 	local Timer = 0
 	spawn(function()
-		wait(1)
-		Timer = Timer + 1
+		while Timer < MaxDuration do
+			wait(1)
+			Timer = Timer + 1
+		end
 	end)
 	local Humanoid = game.Players.LocalPlayer.Character.HumanoidRootPart
 	-- Sky
@@ -12,34 +14,39 @@ function Teleport(X,Y,Z,Debug,Sky)
 	end
 	if Debug then print("Teleportation Begin") end
 	if X ~= nil then
-		while X > Humanoid.Position.X and Timer < 20 do
+		while X > Humanoid.Position.X and Timer < MaxDuration do
 			wait()
 			Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X + TeleportSpeed,Humanoid.CFrame.Y,Humanoid.CFrame.Z))
 		end
-		while X < Humanoid.Position.X < 20 do
+		while X < Humanoid.Position.X and Timer < MaxDuration do
 			wait()
 			Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X - TeleportSpeed,Humanoid.CFrame.Y,Humanoid.CFrame.Z))
 		end
-		if Debug then print("X Done") end
+		if Debug and Timer < MaxDuration then print("X Done") end
 	end
 	if Z ~= nil then
-		while Z > Humanoid.Position.Z < 20 do
+		while Z > Humanoid.Position.Z and Timer < MaxDuration do
 			wait()
 			Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,Humanoid.CFrame.Y,Humanoid.CFrame.Z + TeleportSpeed))
 		end
-		while Z < Humanoid.Position.Z < 20 do
+		while Z < Humanoid.Position.Z and Timer < MaxDuration do
 			wait()
 			Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,Humanoid.CFrame.Y,Humanoid.CFrame.Z - TeleportSpeed))
 		end
-		if Debug then print("Z Done") end
+		if Debug and Timer < MaxDuration then print("Z Done") end
 	end
-	if Y ~= nil then
+	if Y ~= nil and Timer < MaxDuration then
 		Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,Y,Humanoid.CFrame.Z))
 		if Debug then print("Y Done") end
 	end
-	if Debug then print("Teleportation Ended") end
+	if Debug and Timer < MaxDuration  then print("Teleportation Ended") end
+	if Debug and Timer >= MaxDuration then print("Teleportation Failed") end
 end
 
-Debug = true
+Sky = true
+Debug = false
 TeleportSpeed = 1.5
-Teleport(X,Y,Z,Debug,Sky)
+MaxDuration = 20
+
+Teleport(X,Y,Z,Debug,Sky,MaxDuration)
+--Teleport(10000,100000,10000,Debug,Sky,MaxDuration)
