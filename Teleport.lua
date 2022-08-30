@@ -47,5 +47,4 @@ Debug = false
 TeleportSpeed = 1.5
 MaxDuration = 20
 
---Teleport(X,Y,Z,Debug,Sky,MaxDuration)
---Teleport(0,nil,0,true,false,10)
+Teleport(X,Y,Z,Debug,Sky,MaxDuration)
