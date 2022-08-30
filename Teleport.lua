@@ -8,12 +8,12 @@ function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
 		end
 	end)
 	local Humanoid = game.Players.LocalPlayer.Character.HumanoidRootPart
+	if Debug then print("Teleportation Begin : Sky : " .. tostring(Sky) .. ", MaxDuration : " .. tostring(MaxDuration)) end
 	-- Sky
 	local LastY = Humanoid.CFrame.Y
 	if Sky == true then
 	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)
 	end
-	if Debug then print("Teleportation Begin") end
 	if X ~= nil then
 		while X > Humanoid.Position.X and Timer < MaxDuration do
 			wait()
@@ -50,4 +50,4 @@ TeleportSpeed = 1.5
 MaxDuration = 20
 
 Teleport(X,Y,Z,Debug,Sky,MaxDuration)
---Teleport(10000,100000,10000,Debug,Sky,MaxDuration)
+--Teleport(0,nil,0,true,false,10)
