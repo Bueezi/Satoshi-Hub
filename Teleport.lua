@@ -11,9 +11,7 @@ function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
 	if Debug then print("Teleportation Begin : Sky : " .. tostring(Sky) .. ", MaxDuration : " .. tostring(MaxDuration)) end
 	-- Sky
 	local LastY = Humanoid.CFrame.Y
-	if Sky == true then
-	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)
-	end
+	if Sky == true then	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)	end
 	if X ~= nil then
 		while X > Humanoid.Position.X and Timer < MaxDuration do
 			wait()
