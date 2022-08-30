@@ -1,5 +1,6 @@
 function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
 	local Timer = 0
+	if MaxDuration == nil then MaxDuration = math.huge end
 	spawn(function()
 		while Timer < MaxDuration do
 			wait(1)
