@@ -1,4 +1,4 @@
-function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
+local module = function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
 	local Timer = 0
 	if MaxDuration == nil then MaxDuration = math.huge end
 	spawn(function()
@@ -47,4 +47,7 @@ Debug = false
 TeleportSpeed = 1.5
 MaxDuration = 20
 
-Teleport(X,Y,Z,Debug,Sky,MaxDuration)
+--Teleport(X,Y,Z,Debug,Sky,MaxDuration)
+--Teleport(0,nil,0,true,false,10)
+
+return module
