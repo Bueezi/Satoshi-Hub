@@ -1,34 +1,37 @@
-local l__Workspace__1 = game:GetService("Workspace");
-local v2 = require(game:GetService("ReplicatedStorage").LoadModule);
-local l__MinedBlocksResetLimit__1 = v2("Constants").MinedBlocksResetLimit;
-local u2 = v2("AddCommas");
-local BlocksLeft
-for v3, v4 in pairs((v2("Worlds"))) do
-    local u3 = l__Workspace__1.Worlds:FindFirstChild(v3).Sign.Display.SurfaceGui
-    local function v5()
-        local v6 = workspace:GetAttribute("MineBlocksCount")
-        local v7 = l__MinedBlocksResetLimit__1 - v6
-        BlocksLeft = tonumber(v7)
-    end;
-    v5();
-    u3 = ipairs;
-    for v9, v10 in u3(v4.Layers) do
-        local l__Checkpoint__11 = v10.Checkpoint
-        if l__Checkpoint__11 ~= nil then
-            local v12 = l__Workspace__1.Checkpoints:FindFirstChild(l__Checkpoint__11.Name)
-            if v12 ~= nil then
-                local l__Sign__13 = v12:FindFirstChild("Sign")
-                if l__Sign__13 ~= nil then
-                    local l__SurfaceGui__4 = l__Sign__13.Display.SurfaceGui
-                    local function v14()
-                        local v15 = workspace:GetAttribute("MineBlocksCount")
-                        local v16 = l__MinedBlocksResetLimit__1 - v15
-                        BlocksLeft = tonumber(v16)
-                    end;
-                    v14()
-                end
-            end
-        end
-    end
+local module = function()
+	local l__Workspace__1 = game:GetService("Workspace");
+	local v2 = require(game:GetService("ReplicatedStorage").LoadModule);
+	local l__MinedBlocksResetLimit__1 = v2("Constants").MinedBlocksResetLimit;
+	local u2 = v2("AddCommas");
+	local BlocksLeft
+	for v3, v4 in pairs((v2("Worlds"))) do
+		local u3 = l__Workspace__1.Worlds:FindFirstChild(v3).Sign.Display.SurfaceGui
+		local function v5()
+			local v6 = workspace:GetAttribute("MineBlocksCount")
+			local v7 = l__MinedBlocksResetLimit__1 - v6
+			BlocksLeft = tonumber(v7)
+		end;
+		v5();
+		u3 = ipairs;
+		for v9, v10 in u3(v4.Layers) do
+			local l__Checkpoint__11 = v10.Checkpoint
+			if l__Checkpoint__11 ~= nil then
+				local v12 = l__Workspace__1.Checkpoints:FindFirstChild(l__Checkpoint__11.Name)
+				if v12 ~= nil then
+					local l__Sign__13 = v12:FindFirstChild("Sign")
+					if l__Sign__13 ~= nil then
+						local l__SurfaceGui__4 = l__Sign__13.Display.SurfaceGui
+						local function v14()
+							local v15 = workspace:GetAttribute("MineBlocksCount")
+							local v16 = l__MinedBlocksResetLimit__1 - v15
+							BlocksLeft = tonumber(v16)
+						end;
+						v14()
+					end
+				end
+			end
+		end
+	end
+	return BlocksLeft
 end
-return BlocksLeft
+return module
