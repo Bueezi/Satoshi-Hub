@@ -12,7 +12,6 @@ local module = function (X,Y,Z,Debug,Sky,MaxDuration)
 	-- Sky
 	local LastY = Humanoid.CFrame.Y
 	if Sky == true then	Humanoid.CFrame = CFrame.new(Humanoid.Position.X,9999,Humanoid.Position.Z)	end
-	Humanoid.Anchored = true
 	if X ~= nil then
 		while X > Humanoid.Position.X and Timer < MaxDuration do
 			wait()
@@ -39,7 +38,6 @@ local module = function (X,Y,Z,Debug,Sky,MaxDuration)
 		Humanoid.CFrame = CFrame.new(Vector3.new(Humanoid.CFrame.X,Y,Humanoid.CFrame.Z))
 		if Debug then print("Y Done") end
 	end
-	Humanoid.Anchored = false
 	if Debug and Timer < MaxDuration  then print("Teleportation Ended") end
 	if Debug and Timer >= MaxDuration then print("Teleportation Failed") end
 end
