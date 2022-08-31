@@ -1,4 +1,4 @@
-local module = function Teleport(X,Y,Z,Debug,Sky,MaxDuration)
+local module = function (X,Y,Z,Debug,Sky,MaxDuration)
 	local Timer = 0
 	if MaxDuration == nil then MaxDuration = math.huge end
 	spawn(function()
