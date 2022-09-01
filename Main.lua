@@ -73,6 +73,7 @@ CratesToOpen = 5;
 SelectedBoosts = {};
 GlobalStats = {
 RebirthMade = 0;
+Time = 0;
 };
 -- Other
 HideKey = Enum.KeyCode.RightShift;
@@ -164,7 +165,7 @@ local UseBoostsSection = FactoryTab:NewSection("🚀 Use Boosts")
 
 local TeleportOptionSection = TeleportTab:NewSection("🌎 Options")
 local WorldSection = TeleportTab:NewSection("🌎 World")
-local LayerSection = TeleportTab:NewSection("🌎 Layer")
+local LayerSection = TeleportTab:NewSection("🗺️ Layer")
 
 local OpenUISection = UITab:NewSection("💻 Open UI")
 
@@ -287,7 +288,7 @@ for i,v in pairs(Worlds) do
 	end)
 end
 for i,v in pairs(Layers) do
-	LayerSection:NewButton("🌎 Teleport To " .. v , "Teleports you to " .. v , function()
+	LayerSection:NewButton("🗺️ Teleport To " .. v , "Teleports you to " .. v , function()
 		game.ReplicatedStorage.Events.Teleport:FireServer(tostring(v))
 	end)
 end
@@ -384,6 +385,7 @@ local LeftToRebirthLabel = SessionStatsSection:NewLabel("Left To Rebirth : Error
 local BackpackWorthCoinsLabel = SessionStatsSection:NewLabel("Bakcpack Worth Coins : Error")
 ----------- Global Stats -----------
 local GlobalRebirthMadeLabel = GlobalStatsSection:NewLabel("Rebirth Made : Error")
+local GlobalRunningForLabel = GlobalStatsSection:NewLabel("Global Running For : Error")
 ---------------------- Settings ----------------------
 ----------- Settings -----------
 SettingsSection:NewKeybind("🙈 Hide UI Key", "Select The Key to hide the UI", Variables.HideKey, function()
@@ -452,6 +454,14 @@ function Load()
 			if Variables[i] == nil then
 				Variables[i] = v
 				print("----------- Adding Variable " .. i .. " -----------")
+			end
+			if type(v) == "table" then
+				for i2,v2 in pairs(v) do
+					if Variables[i][i2] == nil then
+					Variables[i][i2] = v2
+					print("----------- Adding Variable " .. i2 .. " = " .. v2 .. " -----------")
+					end
+				end
 			end
 		end
 		print("----------- SuccesFullyLoaded -----------")
@@ -823,6 +833,26 @@ spawn(function()
 		end
 	end
 end)
+----------- Unlock All Layers -----------
+spawn(function()
+	while wait(0.5) do
+		if UnlockAllLayers then
+			local PreviousWorld = GetWorld()
+			while Teleporting == true do wait(0.1) end -- Wait Teleporting == false
+			Teleporting = true
+			for i,v in pairs(Layers) do
+				UnlockAllLayersLabel:UpdateLabel("🔓 Status : " .. i .. "/" .. #Layers .. " Layer : " .. v)
+				game:GetService("ReplicatedStorage").Events.Teleport:FireServer(v)
+				game:GetService("ReplicatedStorage").Events.QuickSell:FireServer()
+				wait(1)
+			end
+			Teleporting = false
+			game.ReplicatedStorage.Events.Teleport:FireServer(PreviousWorld)
+			UnlockAllLayersLabel:UpdateLabel("🔓 UnlockAllLayers All Layers Status : Done")
+			UnlockAllLayers = false
+		end
+	end
+end)
 ---------------------- Eggs & Pets ----------------------
 ----------- AutoOpenEgg -----------
 spawn(function()
@@ -921,6 +951,8 @@ end) -- Spawn End
 ----------- Actualise -----------
 -- GlobalData
 local PreviousRebirths = game.Players.LocalPlayer.leaderstats.Rebirths.Value
+local PreviousTime = Time
+local StartTime = Variables.GlobalStats.Time
 -- Function
 function Actualise()
 	-- Time Label
@@ -929,6 +961,18 @@ function Actualise()
 	local Hours = (Minutes - Minutes%60)/60
 	local Minutes = Minutes - Hours*60
 	RunningForLabel:UpdateLabel("⏳ Running For : " .. tostring(Hours) .. "h " .. tostring(Minutes) .. "m " .. tostring(Seconds) .. "s ")
+	
+	Variables.GlobalStats.Time = StartTime + Time
+	local GlobalTime = Variables.GlobalStats.Time
+	local Minutes = (GlobalTime - GlobalTime%60)/60
+	local Seconds = GlobalTime - Minutes*60
+	local Hours = (Minutes - Minutes%60)/60
+	local Minutes = Minutes - Hours*60
+	GlobalRunningForLabel:UpdateLabel("⏳ Global Running For : " .. tostring(Hours) .. "h " .. tostring(Minutes) .. "m " .. tostring(Seconds) .. "s ")
+	if Time > PreviousTime + 60 then 
+		PreviousTime = Time 
+		Save() 
+	end
 	-- Blocks Left
 	BlocksLeftLabel:UpdateLabel("☢️ Blocks left : " .. tostring(GetBlocksLeft()))
 	-- Backpack Worth
@@ -970,7 +1014,7 @@ end)
 game:GetService("ReplicatedStorage").Events.SetOption:FireServer("Debug Mode" , Variables.DebugMode)
 ----------- Hide-UI -----------
 function HideUI()
-	if ChangeUIState == false then
+	if ChangeUIState == false and Destroyed == false then
 		ChangeUIState = true
 		local SatoshiHub = game:GetService("CoreGui").SatoshiHub.Main
 		if SatoshiHub.Visible == true then
