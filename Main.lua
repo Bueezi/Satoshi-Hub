@@ -44,12 +44,20 @@ CollapseProtection = false;
 DebugMode = false;
 HatchEgg = false;
 TripleHatch = false;
+AutoBuyTools = false;
+AutoBuyBackpacks = false;
 -- Boosts
-Lucky = false;
-SuperLucky = false;
-OmegaLucky = false;
-BigEarner = false;
-SuperRich = false;
+BuyBoostLucky = false;
+BuyBoostSuperLucky = false;
+BuyBoostOmegaLucky = false;
+BuyBoostBigEarner = false;
+BuyBoostSuperRich = false;
+
+UseBoostLucky = false;
+UseBoostSuperLucky = false;
+UseBoostOmegaLucky = false;
+UseBoostBigEarner = false;
+UseBoostSuperRich = false;
 -- String
 FactoryType = "Shells";
 Theme = "Midnight";
@@ -66,11 +74,14 @@ SelectedBoosts = {};
 GlobalStats = {
 RebirthMade = 0;
 };
+-- Other
+HideKey = Enum.KeyCode.RightShift;
 }
 ----------- Local Data -----------
 -- Modules
 local Teleport = loadstring(game:HttpGet'https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/Teleport.lua')()
 local GetBlocksLeft = loadstring(game:HttpGet'https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/Blocks-Left')()
+local Shops = require(game:GetService("ReplicatedStorage").SharedModules.Data.Shops)
 -- Paths
 local ReplicatedStorage = game.ReplicatedStorage
 local Events = ReplicatedStorage.Events
@@ -131,43 +142,47 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Bueez
 local Window = Library.CreateLib("Satoshi Hub", Variables.Theme)
 
 -- Tabs
-local FarmTab = Window:NewTab("Farm")
-local FactoryTab = Window:NewTab("Factory & Boosts")
-local TeleportTab = Window:NewTab("Teleport")
-local UITab = Window:NewTab("UI")
-local PetsTab = Window:NewTab("Eggs & Crates")
-local UtilityTab = Window:NewTab("Utility")
-local StatsTab = Window:NewTab("Stats")
-local SettingsTab = Window:NewTab("Settings")
+local FarmTab = Window:NewTab("⛏️ Farm")
+local GearTab = Window:NewTab("🛠️ Gear")
+local FactoryTab = Window:NewTab("💎Factory & 🚀Boost")
+local TeleportTab = Window:NewTab("🌎 Teleport")
+local UITab = Window:NewTab("💻 UI")
+local PetsTab = Window:NewTab("🐣 Eggs & 📦 Crates")
+local UtilityTab = Window:NewTab("🧰 Utility")
+local StatsTab = Window:NewTab("📈 Stats")
+local SettingsTab = Window:NewTab("⚙️ Settings")
 
 -- Sections
-local FarmSection = FarmTab:NewSection("AutoFarm")
-local MineSection = FarmTab:NewSection("Mine")
+local FarmSection = FarmTab:NewSection("⛏️ AutoFarm")
+local FarmOptionSection = FarmTab:NewSection("⛏️ Options")
 
-local FactorySection = FactoryTab:NewSection("Factory")
-local BuyBoostsSection = FactoryTab:NewSection("Buy Boosts")
+local GearSection = GearTab:NewSection("️🛠️ Gear")
 
-local TeleportOptionSection = TeleportTab:NewSection("Options")
-local WorldSection = TeleportTab:NewSection("World")
-local LayerSection = TeleportTab:NewSection("Layer")
+local FactorySection = FactoryTab:NewSection("💎 Factory")
+local BuyBoostsSection = FactoryTab:NewSection("🚀 Buy Boosts")
+local UseBoostsSection = FactoryTab:NewSection("🚀 Use Boosts")
 
-local OpenUISection = UITab:NewSection("Open UI")
+local TeleportOptionSection = TeleportTab:NewSection("🌎 Options")
+local WorldSection = TeleportTab:NewSection("🌎 World")
+local LayerSection = TeleportTab:NewSection("🌎 Layer")
 
-local PetsOptionSection = PetsTab:NewSection("Options")
-local OpenCratesSection = PetsTab:NewSection("Open Crates")
+local OpenUISection = UITab:NewSection("💻 Open UI")
 
-local UtilitySection = UtilityTab:NewSection("Utility")
+local PetsOptionSection = PetsTab:NewSection("🐣 Options")
+local OpenCratesSection = PetsTab:NewSection("📦 Open Crates")
 
-local SessionStatsSection = StatsTab:NewSection("This Session :")
-local GlobalStatsSection = StatsTab:NewSection("Global Stats :")
+local UtilitySection = UtilityTab:NewSection("🧰 Utility")
 
-local SettingsSection = SettingsTab:NewSection("Settings")
+local SessionStatsSection = StatsTab:NewSection("📈 This Session :")
+local GlobalStatsSection = StatsTab:NewSection("📈 Global Stats :")
+
+local SettingsSection = SettingsTab:NewSection("⚙️ Settings")
 
 ----------------------------------------------------------------------------------------------- UI --------------------------------------------------------------------------------------------------
 
 ---------------------- AutoFarm & Mine ----------------------
 ----------- AutoFarm -----------
-Toggles["AutoFarm"] = FarmSection:NewToggle("Auto Farm", "Uses the Autominer until depth then MineAura", function(state)
+Toggles["AutoFarm"] = FarmSection:NewToggle("⛏️ Auto Farm", "Uses the Autominer until depth then MineAura", function(state)
 Variables.AutoFarm = state
 Save()
 end)
@@ -177,37 +192,47 @@ Save()
 end)
 local AutoFarmLabel = FarmSection:NewLabel("AutoFarm Status : Off")
 ----------- Mine -----------
-Toggles["AutoMine"] = MineSection:NewToggle("Auto Mine", "Mines blocks below player", function(state)
+Toggles["AutoMine"] = FarmSection:NewToggle("⛏️ Auto Mine", "Mines blocks below player", function(state)
 Variables.AutoMine = state
 Save()
 end)
-Toggles["MineAura"]  = MineSection:NewToggle("Mine Aura", "Randomly mines blocks around player", function(state)
+Toggles["MineAura"]  = FarmSection:NewToggle("⛏️ Mine Aura", "Randomly mines blocks around player", function(state)
 Variables.MineAura = state
 Save()
 end)
-Toggles["AutoSell"]  = MineSection:NewToggle("Auto Sell", "Sells automaticly to the selected location", function(state)
+Toggles["AutoSell"]  = FarmOptionSection:NewToggle("💰 Auto Sell", "Sells automaticly to the selected location", function(state)
 Variables.AutoSell = state
 Save()
 end)
-MineSection:NewTextBox("AutoSell Max", "Will Sell When BackpackStorage is The Defined Value , 0 to Disable", function(txt)
+FarmOptionSection:NewTextBox("💰 AutoSell Max", "Will Sell When BackpackStorage is The Defined Value , 0 to Disable", function(txt)
 Variables.AutoSellMax = tonumber(txt)
 Save()
 end)
-Toggles["AutoRebirth"]   = MineSection:NewToggle("Auto Rebirth", "AutoMaticly Rebirths", function(state)
+Toggles["AutoRebirth"]   = FarmOptionSection:NewToggle("🔄 Auto Rebirth", "AutoMaticly Rebirths", function(state)
 Variables.AutoRebirth = state
 Save()
 end)
-Toggles["CollapseProtection"] = MineSection:NewToggle("Anti-Collapse", "Make Sure Tu Set MiningPoint Before", function(state)
+Toggles["CollapseProtection"] = FarmOptionSection:NewToggle("🛡️ Anti-Collapse", "Make Sure Tu Set MiningPoint Before", function(state)
 Variables.CollapseProtection = state
 Save()
 end)
-MineSection:NewDropdown("Anti-Collapse-Location", "Select Anti Collapse Location", Layers, function(currentOption)
+FarmOptionSection:NewDropdown("🛡️ Anti-Collapse-Location", "Select Anti Collapse Location", Layers, function(currentOption)
 Variables.CollapseLocation = currentOption
+Save()
+end)
+---------------------- Gear ----------------------
+----------- Gear -----------
+Toggles["AutoBuyTools"] = GearSection:NewToggle("⛏️ Auto Buy Tools", "Uses the Autominer until depth then MineAura", function(state)
+Variables.AutoBuyTools = state
+Save()
+end)
+Toggles["AutoBuyBackpacks"] = GearSection:NewToggle("⛏️ Auto Buy Backpacks", "Uses the Autominer until depth then MineAura", function(state)
+Variables.AutoBuyBackpacks = state
 Save()
 end)
 ---------------------- Factory & Boosts ----------------------
 ----------- Factory -----------
-FactorySection:NewButton("Open Factory UI","Opens The Factory UI", function()
+FactorySection:NewButton("💻 Open Factory UI","Opens The Factory UI", function()
 	local ActualUI = ScreenGui["Factory"].Frame
 	ActualUI.Parent.Visible = true
 	ActualUI.Parent.BackgroundTransparency = 1
@@ -216,53 +241,60 @@ FactorySection:NewButton("Open Factory UI","Opens The Factory UI", function()
 	ActualUI.Visible = false
 	end)
 end)
-local FactoryTypeUI = FactorySection:NewDropdown("Factory Type", "Select Currency", {"Coins","CyberTokens","Shells"}, function(currentOption)
+local FactoryTypeUI = FactorySection:NewDropdown("💎 Factory Type", "Select Currency", {"Coins","CyberTokens","Shells"}, function(currentOption)
     Variables.FactoryType = currentOption
 	Save()
 end)
-local FactoryAmmountUI = FactorySection:NewDropdown("Factory Amount", "Select Amount of gemms u want to make", FactoryAmmountTable, function(currentOption)
+local FactoryAmmountUI = FactorySection:NewDropdown("💎 Factory Amount", "Select Amount of gemms u want to make", FactoryAmmountTable, function(currentOption)
 	currentOption = string.sub(currentOption,1,1)
 	Variables.FactoryAmmount = currentOption
     print(Variables.FactoryAmmount)
 	Save()
 end)
-Toggles["AutoFactory"]  = FactorySection:NewToggle("Auto Factory", "Automaticly crafts & claims factory best option", function(state)
+Toggles["AutoFactory"]  = FactorySection:NewToggle("💎 Auto Factory", "Automaticly crafts & claims factory best option", function(state)
 	Variables.AutoFactory = state
 	Save()
 end)
-local FactoryLabel = FactorySection:NewLabel("AutoFactory Status : Error")
+local FactoryLabel = FactorySection:NewLabel("💎 AutoFactory Status : Error")
 ----------- Boosts -----------
 for i,v in pairs(Boosts) do
-	local Name = i:gsub(" ","")
-	Toggles[Name] = BuyBoostsSection:NewToggle( i .. " Boost Auto Buy", "Automaticly Buys The " .. i .. " Boost", function(state)
+	local Name = "BuyBoost" .. i:gsub(" ","")
+	Toggles[Name] = BuyBoostsSection:NewToggle("🚀 " .. i .. " Boost Auto Buy", "Automaticly Buys The " .. i .. " Boost", function(state)
+	Variables[Name] = state
+	Save()
+	end)
+end
+for i,v in pairs(Boosts) do
+	local Name = "UseBoost" .. i:gsub(" ","")
+	Toggles[Name] = UseBoostsSection:NewToggle("🚀 " .. i .. " Use Auto Buy", "Automaticly Uses The " .. i .. " Boost", function(state)
 	Variables[Name] = state
 	Save()
 	end)
 end
 ---------------------- Teleport ----------------------
 ----------- Teleport -----------
-TeleportOptionSection:NewButton("Collect All Chests", "Teleports you to all chests", function()
+TeleportOptionSection:NewButton("🎁 Collect All Chests", "Teleports you to all chests", function()
     CollectAllChests = true
 end)
-local CollectAllChestsLabel = TeleportOptionSection:NewLabel("Collect All Chest Status : Off")
-TeleportOptionSection:NewButton("Unlock All Layers", "Makes you unlock all layers", function()
+local CollectAllChestsLabel = TeleportOptionSection:NewLabel("🎁 Collect All Chest Status : Error")
+TeleportOptionSection:NewButton("🔓 Unlock All Layers", "Makes you unlock all layers", function()
     UnlockAllLayers = true
 end)
-local UnlockAllLayersLabel = TeleportOptionSection:NewLabel("UnlockAllLayers Status : Off")
+local UnlockAllLayersLabel = TeleportOptionSection:NewLabel("🔓 UnlockAllLayers Status : Error")
 for i,v in pairs(Worlds) do
-	WorldSection:NewButton("Teleport To " .. v , "Teleports you to " .. v , function()
+	WorldSection:NewButton("🌎 Teleport To " .. v , "Teleports you to " .. v , function()
 		game.ReplicatedStorage.Events.Teleport:FireServer(tostring(v))
 	end)
 end
 for i,v in pairs(Layers) do
-	LayerSection:NewButton("Teleport To " .. v , "Teleports you to " .. v , function()
+	LayerSection:NewButton("🌎 Teleport To " .. v , "Teleports you to " .. v , function()
 		game.ReplicatedStorage.Events.Teleport:FireServer(tostring(v))
 	end)
 end
 ---------------------- UI ----------------------
 ----------- UI -----------
 for i,v in pairs(UIS) do
-	OpenUISection:NewButton("Open " .. v .. " UI", "Opens The " .. v .. " UI", function()
+	OpenUISection:NewButton("💻 Open " .. v .. " UI", "Opens The " .. v .. " UI", function()
 		local ActualUI = ScreenGui[v].Frame
 		ActualUI.Visible = true
 		ActualUI.Parent.Visible = true
@@ -276,29 +308,29 @@ for i,v in pairs(UIS) do
 end
 ---------------------- Eggs & Crates ----------------------
 ----------- Eggs -----------
-PetsOptionSection:NewDropdown("Select Egg To Open", "Select Egg To Open", Eggs, function(currentOption)
+PetsOptionSection:NewDropdown("🐣 Select Egg To Open", "Select Egg To Open", Eggs, function(currentOption)
     Variables.EggToHatch = currentOption
 	Save()
 end)
-Toggles["TripleHatch"] = PetsOptionSection:NewToggle("TripleHatch", "Use With AutoHatch", function(state)
+Toggles["TripleHatch"] = PetsOptionSection:NewToggle("🐣 TripleHatch", "Use With AutoHatch", function(state)
 	Variables.TripleHatch = state
 	Save()
 end)
-Toggles["AutoHatchEgg"] = PetsOptionSection:NewToggle("AutoHatch", "Automaticly Opens The Selected Egg", function(state)
+Toggles["AutoHatchEgg"] = PetsOptionSection:NewToggle("🐣 AutoHatch", "Automaticly Opens The Selected Egg", function(state)
 	Variables.HatchEgg = state
 	Save()
 end)
-Toggles["AutoEquipBestPets"] = PetsOptionSection:NewToggle("Auto Equip Best Pets", "Automaticly equip the best pets you have", function(state)
+Toggles["AutoEquipBestPets"] = PetsOptionSection:NewToggle("🐶 Auto Equip Best Pets", "Automaticly equip the best pets you have", function(state)
 	Variables.AutoEquipBestPets = state
 	Save()
 end)
-Toggles["RemoveHatchingAnimation"] = PetsOptionSection:NewToggle("Remove Hatching/Crate Open Animation", "Removes the egg hatching and Crate Open Animation", function(state)
+Toggles["RemoveHatchingAnimation"] = PetsOptionSection:NewToggle("💻 Remove Hatching/Crate Open Animation", "Removes the egg hatching and Crate Open Animation", function(state)
 	Variables.RemoveHatchingAnimation = state
 	Save()
 	RemoveHatchingAnimation()
 end)
 ----------- Crates -----------
-local CratesToOpenTextBox = OpenCratesSection:NewTextBox("Crates To Open", "Set How Many Crates u Want to Open", function(txt)
+local CratesToOpenTextBox = OpenCratesSection:NewTextBox("📦 Crates To Open", "Set How Many Crates u Want to Open", function(txt)
 if tonumber(txt) >= 1 then
 	Variables.CratesToOpen = tonumber(txt)
 else
@@ -307,7 +339,7 @@ end
 Save()
 end)
 for i,v in pairs(Crates) do
-	OpenCratesSection:NewButton(i .. " Open", "open the selected amount of the : " .. i .. "Crate", function(state)
+	OpenCratesSection:NewButton("📦 " .. i .. " Open", "open the selected amount of the : " .. i .. "Crate", function(state)
 		OpenCrate(i)
 	end)
 end
@@ -320,7 +352,7 @@ function OpenCrate(Crate)
 end
 ---------------------- Utility ----------------------
 ----------- Utility -----------
-Toggles["CollapseMeter"] = UtilitySection:NewToggle("Show Collapse Meter", "Shows a collapse meter", function(state)
+Toggles["CollapseMeter"] = UtilitySection:NewToggle("☢️ Show Collapse Meter", "Shows a collapse meter", function(state)
 if state then
 	loadstring(game:HttpGet'https://raw.githubusercontent.com/Bueezi/Satoshi-Hub/main/Collapse-Meter.lua')()
 else
@@ -331,18 +363,18 @@ end
 Variables.CollapseMeter = state
 Save()
 end)
-Toggles["AutoClaimGroupBenefits"] = UtilitySection:NewToggle("Auto Claim Group Benefits", "Automaticly Claims Group Benefits", function(state)
+Toggles["AutoClaimGroupBenefits"] = UtilitySection:NewToggle("🎁 Auto Claim Group Benefits", "Automaticly Claims Group Benefits", function(state)
 	Variables.AutoClaimGroupBenefits = state
 	Save()
 end)
-Toggles["AutoDeposit"] = UtilitySection:NewToggle("AutoDeposit Forge Shards", "Automaticly Deposits shards to the forge", function(state)
+Toggles["AutoDeposit"] = UtilitySection:NewToggle("⚒️ AutoDeposit Forge Shards", "Automaticly Deposits shards to the forge", function(state)
 	Variables.AutoDeposit = state
 	Save()
 end)
-UtilitySection:NewButton("Redeem All Codes", "Redeems All Codes Last Update 21/08", function()
+UtilitySection:NewButton("🔑 Redeem All Codes", "Redeems All Codes Last Update 21/08", function()
     RedeemCodes()
 end)
-local RedeemAllCodesLabel = UtilitySection:NewLabel("Redeem All Codes Status : Off")
+local RedeemAllCodesLabel = UtilitySection:NewLabel("🔑 Redeem All Codes Status : Off")
 ---------------------- Stats ----------------------
 ----------- Stats -----------
 local RunningForLabel = SessionStatsSection:NewLabel("Running For : Error")
@@ -354,29 +386,29 @@ local BackpackWorthCoinsLabel = SessionStatsSection:NewLabel("Bakcpack Worth Coi
 local GlobalRebirthMadeLabel = GlobalStatsSection:NewLabel("Rebirth Made : Error")
 ---------------------- Settings ----------------------
 ----------- Settings -----------
-SettingsSection:NewKeybind("Hide UI Key", "Select The Key to hide the UI", Enum.KeyCode.RightShift, function()
+SettingsSection:NewKeybind("🙈 Hide UI Key", "Select The Key to hide the UI", Variables.HideKey, function()
 	--Library:ToggleUI()
-	ChangeUIState = true
+	HideUI()
 	Save()
 end)
-SettingsSection:NewDropdown("Theme", "Select the theme of the UI", ThemeTable, function(currentOption)
+SettingsSection:NewDropdown("🎨 Theme", "Select the theme of the UI", ThemeTable, function(currentOption)
 	Variables.Theme = currentOption
 	Save()
 	DestroyUI()
 	print("Teme Changed")
 end)
-SettingsSection:NewButton("Copy Discord Link To Clipboard", "Copys you the discord link", function()
+SettingsSection:NewButton("📋 Copy Discord Link To Clipboard", "Copys you the discord link", function()
 	setclipboard("https://discord.gg/s7YUjd5x")
 end)
-SettingsSection:NewButton("DestroyUI", "Destroys the Gui", function()
+SettingsSection:NewButton("💣 DestroyUI", "Destroys the Gui", function()
     DestroyUI()
 end)
-SettingsSection:NewButton("Reset Settings", "Ressets All The Settings", function()
+SettingsSection:NewButton("🔄 Reset Settings", "Ressets All The Settings", function()
     ResetSettings()
 	Save()
 	RefreshToggles()
 end)
-Toggles["DebugMode"] = SettingsSection:NewToggle("Debug Mode", "Automaticly Deposits shards to the forge", function(state)
+Toggles["DebugMode"] = SettingsSection:NewToggle("👩🏽‍💻 Debug Mode", "Automaticly Deposits shards to the forge", function(state)
 	Variables.DebugMode = state
 	Save()
 	game:GetService("ReplicatedStorage").Events.SetOption:FireServer("Debug Mode" , state)
@@ -395,7 +427,7 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 ----------- Save & Load -----------
 function Save()
-	if Loaded == true then
+	if Loaded and Destroyed == false then
 		local json
 		local HttpService = game:GetService("HttpService")
 		if (writefile) then
@@ -461,11 +493,11 @@ spawn(function()
 			if game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position.Y > blockdepth then -- if player is above the chosen depth then automine
                 Variables.MineAura = false
 				Variables.AutoMine = true
-				AutoFarmLabel:UpdateLabel("AutoFarm Status : AutoMine, Depth : " .. tostring(Variables.AutoFarmDepth))
+				AutoFarmLabel:UpdateLabel("⛏️ AutoFarm Status : AutoMine, Depth : " .. tostring(Variables.AutoFarmDepth))
             else -- If Player is Under The Chosen depth then Mine Aura
                 Variables.AutoMine = false
 				Variables.MineAura = true
-				AutoFarmLabel:UpdateLabel("AutoFarm Status : Mine Aura, Depth : " .. tostring(Variables.AutoFarmDepth))
+				AutoFarmLabel:UpdateLabel("⛏️ AutoFarm Status : Mine Aura, Depth : " .. tostring(Variables.AutoFarmDepth))
             end -- If Stop
 			wait(0.3)
 			if Variables.AutoFarm == false then
@@ -473,7 +505,7 @@ spawn(function()
 				Variables.MineAura = false
 			end
 		end -- If/While End
-		AutoFarmLabel:UpdateLabel("AutoFarm Status : Off, Depth : " .. tostring(Variables.AutoFarmDepth))
+		AutoFarmLabel:UpdateLabel("⛏️ AutoFarm Status : Off, Depth : " .. tostring(Variables.AutoFarmDepth))
 	end -- Infinite Loop End
 end) -- Spawn End
 ---------------------- Mine ----------------------
@@ -707,19 +739,48 @@ spawn(function()
 	end
 end)
 -- Anti Collapse End
+---------------------- Gear ----------------------
+----------- Gear -----------
+spawn(function()
+	while wait(0.5) do
+		while Variables.AutoBuyTools or Variables.AutoBuyBackpacks do
+			for i,v in pairs(Shops) do
+				if Variables.DebugMode then print("Shop : " .. i) end
+				local Shop = i
+				for i2,v2 in pairs(v) do
+					if v2[1] == "Tool" and Variables.AutoBuyTools then
+						if Variables.DebugMode then print("Tool : " .. v2[2]) end
+						local Tool = i2
+						game:GetService("ReplicatedStorage").Events.PurchaseShopItem:FireServer(Shop, Tool)
+						wait(0.03)
+					end
+				end
+				for i2,v2 in pairs(v) do
+					if v2[1] == "Backpack" and Variables.AutoBuyBackpacks then
+						if Variables.DebugMode then print("Backpack : " .. v2[2]) end
+						local Backpack = i2
+						game:GetService("ReplicatedStorage").Events.PurchaseShopItem:FireServer(Shop, Backpack)
+						wait(0.03)
+					end
+				end
+			end
+			wait(5)
+		end
+	end
+end)
 ---------------------- Factory & Boosts ----------------------
 ----------- Factory -----------
 spawn(function()
 	while wait(0.5) do
 		while Variables.AutoFactory and wait(5) do
-			FactoryLabel:UpdateLabel("AutoFactory Status : On," .. Variables.FactoryType .. " : " ..  Variables.FactoryAmmount)
+			FactoryLabel:UpdateLabel("💎 AutoFactory Status : On," .. Variables.FactoryType .. " : " ..  Variables.FactoryAmmount)
 			local FactoryTypeString = Variables.FactoryType .. " " .. Variables.FactoryAmmount
 			for i = 1,3 do
 				game.ReplicatedStorage.Events.ClaimFactoryCraft:FireServer(i)
 				game.ReplicatedStorage.Events.StartFactoryCraft:FireServer(FactoryTypeString,i)
 			end
 		end
-		FactoryLabel:UpdateLabel("AutoFactory Status : Off," .. Variables.FactoryType .. " : " ..  Variables.FactoryAmmount)
+		FactoryLabel:UpdateLabel("💎 AutoFactory Status : Off," .. Variables.FactoryType .. " : " ..  Variables.FactoryAmmount)
 	end
 end)
 ----------- BuyBoost -----------
@@ -748,7 +809,7 @@ spawn(function()
 				local Part = game:GetService("Workspace").Checkpoints[v].Chest.Activation.Tag
 				ChestX = Part.CFrame.X
 				ChestZ = Part.CFrame.Z
-				CollectAllChestsLabel:UpdateLabel("Collect Chest Status : " .. i .. "/" .. #Chests .. " Chest : " .. v)
+				CollectAllChestsLabel:UpdateLabel("🎁 Collect Chest Status : " .. i .. "/" .. #Chests .. " Chest : " .. v)
 				game.ReplicatedStorage.Events.Teleport:FireServer(v)
 				wait(0.5)
 				Teleport(ChestX,nil,ChestZ,Variables.DebugMode,false,5)
@@ -757,7 +818,7 @@ spawn(function()
 			end
 			Teleporting = false
 			game.ReplicatedStorage.Events.Teleport:FireServer(PreviousWorld)
-			CollectAllChestsLabel:UpdateLabel("Collect All Chest Status : Done")
+			CollectAllChestsLabel:UpdateLabel("🎁 Collect All Chest Status : Done")
 			CollectAllChests = false
 		end
 	end
@@ -838,10 +899,10 @@ end)
 function RedeemCodes()
 	for i,v in pairs(CodesTable) do
 		game.ReplicatedStorage.Functions.RedeemCode:InvokeServer(v)
-		RedeemAllCodesLabel:UpdateLabel("Redeem All Codes Status : " .. i .. "/" .. #CodesTable .. " Code : " .. v)
+		RedeemAllCodesLabel:UpdateLabel("🔑 Redeem All Codes Status : " .. i .. "/" .. #CodesTable .. " Code : " .. v)
 		wait(.3)
 	end
-	RedeemAllCodesLabel:UpdateLabel("Redeem All Codes Status : Done")
+	RedeemAllCodesLabel:UpdateLabel("🔑 Redeem All Codes Status : Done")
 end
 ----------- ShowCollapseMeter -----------
 function ShowwCollapseMeter()
@@ -867,15 +928,15 @@ function Actualise()
 	local Seconds = Time - Minutes*60
 	local Hours = (Minutes - Minutes%60)/60
 	local Minutes = Minutes - Hours*60
-	RunningForLabel:UpdateLabel("Running For : " .. tostring(Hours) .. "h " .. tostring(Minutes) .. "m " .. tostring(Seconds) .. "s ")
+	RunningForLabel:UpdateLabel("⏳ Running For : " .. tostring(Hours) .. "h " .. tostring(Minutes) .. "m " .. tostring(Seconds) .. "s ")
 	-- Blocks Left
-	BlocksLeftLabel:UpdateLabel("Blocks left : " .. tostring(GetBlocksLeft()))
+	BlocksLeftLabel:UpdateLabel("☢️ Blocks left : " .. tostring(GetBlocksLeft()))
 	-- Backpack Worth
 	local moduleformat = require(game.ReplicatedStorage.LoadModule)
 	local format = moduleformat("FormatBigNumber")
 	local BackpackStatsCoins = GetBackpackValue()["Coins"]
 	local BackpackText = format(GetBackpackValue()["Coins"])
-	BackpackWorthCoinsLabel:UpdateLabel("Bakcpack Worth Coins : " .. tostring(BackpackText))
+	BackpackWorthCoinsLabel:UpdateLabel("🎒 Bakcpack Worth Coins : " .. tostring(BackpackText))
 	-- Left To Rebirth
 	local RebirthStatsPrice = GetRebirthPrice()
 	local LeftToRebirthStatsValue = BackpackStatsCoins + game.Players.LocalPlayer.leaderstats.Coins.Value - RebirthStatsPrice
@@ -886,7 +947,7 @@ function Actualise()
 	else
 		LeftToRebirthStatsText = "You Can Rebirth"
 	end
-	LeftToRebirthLabel:UpdateLabel("Left To Rebirth : " .. tostring(LeftToRebirthStatsText))
+	LeftToRebirthLabel:UpdateLabel("🔄 Left To Rebirth : " .. tostring(LeftToRebirthStatsText))
 	-- Rebirth Made Label
 	local Rebirths = game.Players.LocalPlayer.leaderstats.Rebirths.Value
 	local RebirthMade = math.abs(StartRebirths - Rebirths)
@@ -895,8 +956,8 @@ function Actualise()
 		Save()
 	end
 	PreviousRebirths = Rebirths
-	RebirthMadeLabel:UpdateLabel("Rebirth Made : " .. tostring(RebirthMade))
-	GlobalRebirthMadeLabel:UpdateLabel("Rebirth Made : " .. tostring(Variables.GlobalStats.RebirthMade))
+	RebirthMadeLabel:UpdateLabel("🔄 Rebirth Made : " .. tostring(RebirthMade))
+	GlobalRebirthMadeLabel:UpdateLabel("🔄 Rebirth Made : " .. tostring(Variables.GlobalStats.RebirthMade))
 end
 -- Actualise Loop
 spawn(function()
@@ -909,7 +970,8 @@ end)
 game:GetService("ReplicatedStorage").Events.SetOption:FireServer("Debug Mode" , Variables.DebugMode)
 ----------- Hide-UI -----------
 function HideUI()
-	if ChangeUIState == true then
+	if ChangeUIState == false then
+		ChangeUIState = true
 		local SatoshiHub = game:GetService("CoreGui").SatoshiHub.Main
 		if SatoshiHub.Visible == true then
 			SatoshiHub:TweenSize(UDim2.new(0, 53, 0, 32),nil,nil,0.3)
